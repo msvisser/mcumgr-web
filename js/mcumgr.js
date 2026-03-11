@@ -33,6 +33,9 @@ const IMG_MGMT_ID_CORELIST = 3;
 const IMG_MGMT_ID_CORELOAD = 4;
 const IMG_MGMT_ID_ERASE = 5;
 
+// Shell group
+const SHELL_MGMT_ID_EXEC = 0;
+
 class MCUManager {
     constructor(di = {}) {
         this.SERVICE_UUID = '8d53dc1d-1db7-4cd3-868b-8a527460aa84';
@@ -254,6 +257,9 @@ class MCUManager {
     }
     smpEcho(message) {
         return this._sendMessage(MGMT_OP_WRITE, MGMT_GROUP_ID_OS, OS_MGMT_ID_ECHO, { d: message });
+    }
+    smpShell(message) {
+        return this._sendMessage(MGMT_OP_WRITE, MGMT_GROUP_ID_SHELL, SHELL_MGMT_ID_EXEC, { argv: [message] });
     }
     cmdImageState() {
         return this._sendMessage(MGMT_OP_READ, MGMT_GROUP_ID_IMAGE, IMG_MGMT_ID_STATE);
@@ -504,6 +510,7 @@ if (typeof module !== 'undefined' && module.exports) {
         IMG_MGMT_ID_FILE,
         IMG_MGMT_ID_CORELIST,
         IMG_MGMT_ID_CORELOAD,
-        IMG_MGMT_ID_ERASE
+        IMG_MGMT_ID_ERASE,
+        SHELL_MGMT_ID_EXEC
     };
 }

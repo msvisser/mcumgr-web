@@ -30,6 +30,7 @@ const uploadDropZone = document.getElementById('upload-drop-zone');
 const uploadIcon = document.getElementById('upload-icon');
 const uploadDropTitle = document.getElementById('upload-drop-title');
 const uploadDropSubtitle = document.getElementById('upload-drop-subtitle');
+const shellOutput = document.getElementById('shell-output');
 
 if (navigator && navigator.bluetooth && navigator.bluetooth.getAvailability()) {
     bluetoothIsAvailableMessage.innerText = 'Bluetooth is available in your browser.';
@@ -52,6 +53,11 @@ deviceNameInput.addEventListener('change', () => {
 // Close connection error alert
 closeConnectionError.addEventListener('click', () => {
     connectionError.style.display = 'none';
+});
+
+const shell = new Shell(shellOutput);
+shell.onCommand(async (command) => {
+    await mcumgr.smpShell(command);
 });
 
 const mcumgr = new MCUManager();
@@ -83,6 +89,7 @@ mcumgr.onConnect(() => {
     fileCancel.style.display = 'none';
 
     mcumgr.cmdImageState();
+    shell.clear();
 });
 mcumgr.onDisconnect((error) => {
     deviceName.innerText = 'Connect your device';
@@ -213,6 +220,13 @@ mcumgr.onMessage(({ op, group, id, data, length }) => {
                     testButton.disabled = !(data.images && data.images.length > 1 && data.images[1] && data.images[1].pending === false);
                     confirmButton.disabled = !(data.images && data.images.length > 0 && data.images[0] && data.images[0].confirmed === false);
                     console.log('[DEBUG] Button states set - test:', testButton.disabled, 'confirm:', confirmButton.disabled);
+                    break;
+            }
+            break;
+        case MGMT_GROUP_ID_SHELL:
+            switch (id) {
+                case SHELL_MGMT_ID_EXEC:
+                    shell.finishCommand(data.o);
                     break;
             }
             break;
